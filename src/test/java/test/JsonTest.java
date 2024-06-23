@@ -1,14 +1,14 @@
 package test;
 
-import de.codecentric.chaosmonkey.jakarta.ChaosConfig;
-import de.codecentric.chaosmonkey.jakarta.Locations;
+import de.codecentric.chaosmonkey.jakarta.Chaos;
+import de.codecentric.chaosmonkey.jakarta.Directions;
 import de.codecentric.chaosmonkey.jakarta.RestMethods;
 import de.codecentric.chaosmonkey.jakarta.RestPaths;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import org.junit.jupiter.api.Test;
 
-import static de.codecentric.chaosmonkey.jakarta.ChaosLocation.CONTAINER;
+import static de.codecentric.chaosmonkey.jakarta.ChaosDirection.INCOMING;
 import static de.codecentric.chaosmonkey.jakarta.RestMethod.DELETE;
 import static de.codecentric.chaosmonkey.jakarta.RestMethod.GET;
 import static de.codecentric.chaosmonkey.jakarta.RestMethod.POST;
@@ -20,9 +20,8 @@ import static test.CustomAssertions.then;
 class JsonTest {
     public static final Jsonb JSONB = JsonbBuilder.create();
 
-    @Test
-    void shouldSerializeChaosConfig() {
-        var chaosConfig = ChaosConfig.builder()
+    @Test void shouldSerializeChaosConfig() {
+        var chaosConfig = Chaos.builder()
                 .failureCount(3)
                 .statusCode(NOT_IMPLEMENTED)
                 .build();
@@ -37,18 +36,31 @@ class JsonTest {
                 """);
     }
 
-    @Test
-    void shouldSerializeRestPaths() {
-        var restPaths = new RestPaths();
-        restPaths.set("/foo", ChaosConfig.builder()
+    @Test void shouldDeserializeChaosConfig() {
+        var chaos = JSONB.fromJson("""
+                {
+                    "failureCount": 3,
+                    "statusCode": 501
+                }
+                """, Chaos.class);
+
+        then(chaos).isEqualTo(Chaos.builder()
                 .failureCount(3)
                 .statusCode(NOT_IMPLEMENTED)
                 .build());
-        restPaths.set("/bar", ChaosConfig.builder()
+    }
+
+    @Test void shouldSerializeRestPaths() {
+        var restPaths = new RestPaths();
+        restPaths.patch("/foo", Chaos.builder()
+                .failureCount(3)
+                .statusCode(NOT_IMPLEMENTED)
+                .build());
+        restPaths.patch("/bar", Chaos.builder()
                 .failureCount(1)
                 .statusCode(BAD_REQUEST)
                 .build());
-        restPaths.set("/inactive", ChaosConfig.builder().build());
+        restPaths.patch("/inactive", Chaos.builder().build());
 
         var json = JSONB.toJson(restPaths);
 
@@ -66,10 +78,35 @@ class JsonTest {
                 """);
     }
 
-    @Test
-    void shouldSerializeOnlyInactiveRestPaths() {
+    @Test void shouldDeserializeRestPaths() {
+        var actual = JSONB.fromJson("""
+                {
+                    "/foo": {
+                        "failureCount": 3,
+                        "statusCode": 501
+                    },
+                    "/bar": {
+                        "failureCount": 1,
+                        "statusCode": 400
+                    }
+                }
+                """, RestPaths.class);
+
+        var expected = new RestPaths();
+        expected.patch("/foo", Chaos.builder()
+                .failureCount(3)
+                .statusCode(NOT_IMPLEMENTED)
+                .build());
+        expected.patch("/bar", Chaos.builder()
+                .failureCount(1)
+                .statusCode(BAD_REQUEST)
+                .build());
+        then(actual).isEqualTo(expected);
+    }
+
+    @Test void shouldSerializeOnlyInactiveRestPaths() {
         var restPaths = new RestPaths();
-        restPaths.get("/inactive");
+        restPaths.at("/inactive");
 
         var json = JSONB.toJson(restPaths);
 
@@ -79,14 +116,13 @@ class JsonTest {
                 """);
     }
 
-    @Test
-    void shouldSerializeRestMethods() {
+    @Test void shouldSerializeRestMethods() {
         var restMethods = new RestMethods();
-        restMethods.on(PUT).set("/foo/bar", ChaosConfig.builder()
+        restMethods.with(PUT).patch("/foo/bar", Chaos.builder()
                 .failureCount(3)
                 .statusCode(NOT_IMPLEMENTED)
                 .build());
-        restMethods.on(POST).set("/inactive", ChaosConfig.builder().build());
+        restMethods.with(POST).patch("/inactive", Chaos.builder().build());
 
         var json = JSONB.toJson(restMethods);
 
@@ -102,10 +138,29 @@ class JsonTest {
                 """);
     }
 
-    @Test
-    void shouldSerializeOnlyInactiveRestMethods() {
+    @Test void shouldDeserializeRestMethods() {
+        var actual = JSONB.fromJson("""
+                {
+                    "PUT": {
+                        "/foo/bar": {
+                            "failureCount": 3,
+                            "statusCode": 501
+                        }
+                    }
+                }
+                """, RestMethods.class);
+
+        var expected = new RestMethods();
+        expected.with(PUT).patch("/foo/bar", Chaos.builder()
+                .failureCount(3)
+                .statusCode(NOT_IMPLEMENTED)
+                .build());
+        then(actual).isEqualTo(expected);
+    }
+
+    @Test void shouldSerializeOnlyInactiveRestMethods() {
         var restMethods = new RestMethods();
-        restMethods.on(GET).get("/inactive");
+        restMethods.with(GET).at("/inactive");
 
         var json = JSONB.toJson(restMethods);
 
@@ -115,19 +170,18 @@ class JsonTest {
                 """);
     }
 
-    @Test
-    void shouldSerializeLocations() {
-        var locations = new Locations();
-        locations.at(CONTAINER).on(DELETE).set("/foo/bar", ChaosConfig.builder()
+    @Test void shouldSerializeDirections() {
+        var directions = new Directions();
+        directions.at(INCOMING).with(DELETE).patch("/foo/bar", Chaos.builder()
                 .failureCount(3)
                 .statusCode(NOT_IMPLEMENTED)
                 .build());
 
-        var json = JSONB.toJson(locations);
+        var json = JSONB.toJson(directions);
 
         then(json).isJsonEqualTo("""
                 {
-                    "CONTAINER": {
+                    "INCOMING": {
                         "DELETE": {
                             "/foo/bar": {
                                 "failureCount": 3,
@@ -139,19 +193,52 @@ class JsonTest {
                 """);
     }
 
-    @Test
-    void shouldSerializeAtypicalChaosConfigs() {
-        var locations = new Locations();
-        locations.at(CONTAINER).on("AHOY").set("/", ChaosConfig.builder()
+    @Test void shouldDeserializeDirections() {
+        var actual = JSONB.fromJson("""
+                {
+                    "INCOMING": {
+                        "DELETE": {
+                            "/foo/bar": {
+                                "failureCount": 3,
+                                "statusCode": 501
+                            }
+                        }
+                    }
+                }
+                """, Directions.class);
+
+        var expected = new Directions();
+        expected.at(INCOMING).with(DELETE).patch("/foo/bar", Chaos.builder()
+                .failureCount(3)
+                .statusCode(NOT_IMPLEMENTED)
+                .build());
+        then(actual).isEqualTo(expected);
+    }
+
+    @Test void shouldSerializeOnlyInactiveDirections() {
+        var directions = new Directions();
+        directions.at(INCOMING).with(DELETE).at("/foo/bar").setDelay(1000L);
+
+        var json = JSONB.toJson(directions);
+
+        then(json).isJsonEqualTo("""
+                {
+                }
+                """);
+    }
+
+    @Test void shouldSerializeAtypicalDirections() {
+        var directions = new Directions();
+        directions.at(INCOMING).with("AHOY").patch("/", Chaos.builder()
                 .failureCount(3)
                 .statusCode(418) // I'm a teapot
                 .build());
 
-        var json = JSONB.toJson(locations);
+        var json = JSONB.toJson(directions);
 
         then(json).isJsonEqualTo("""
                 {
-                    "CONTAINER": {
+                    "INCOMING": {
                         "AHOY": {
                             "/": {
                                 "failureCount": 3,
@@ -159,19 +246,6 @@ class JsonTest {
                             }
                         }
                     }
-                }
-                """);
-    }
-
-    @Test
-    void shouldSerializeOnlyInactiveLocations() {
-        var locations = new Locations();
-        locations.at(CONTAINER).on(DELETE).get("/foo/bar");
-
-        var json = JSONB.toJson(locations);
-
-        then(json).isJsonEqualTo("""
-                {
                 }
                 """);
     }

@@ -8,6 +8,7 @@ import jakarta.json.bind.serializer.JsonbSerializer;
 import jakarta.json.bind.serializer.SerializationContext;
 import jakarta.json.stream.JsonGenerator;
 import jakarta.json.stream.JsonParser;
+import lombok.EqualsAndHashCode;
 
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -18,29 +19,34 @@ import static jakarta.json.stream.JsonParser.Event.KEY_NAME;
 
 @JsonbTypeSerializer(RestPaths.Serializer.class)
 @JsonbTypeDeserializer(RestPaths.Deserializer.class)
+@EqualsAndHashCode
 public class RestPaths {
     public record RestPath(String path) {
         public static RestPath of(String restPath) {return new RestPath(restPath);}
     }
 
-    private final Map<RestPath, ChaosConfig> paths = new ConcurrentHashMap<>();
+    private final Map<RestPath, Chaos> paths = new ConcurrentHashMap<>();
 
-    public boolean active() {
-        return paths.values().stream().anyMatch(ChaosConfig::active);
+    @Override public String toString() {return "RestPaths:" + paths;}
+
+    public boolean active() {return paths.values().stream().anyMatch(Chaos::active);}
+
+
+    public Chaos at(String restPath) {return at(RestPath.of(restPath));}
+
+    // could be many paths in an application and we don't want to store an empty config for all of them.
+    public Chaos at(RestPath restPath) {
+        return Optional.ofNullable(paths.get(restPath)).orElseGet(Chaos::new);
     }
 
-    public ChaosConfig get(String restPath) {return get(RestPath.of(restPath));}
+    public Chaos put(String path, Chaos config) {return put(RestPath.of(path), config);}
 
-    // there may be many paths in an application and we don't want to store an empty config for all of them.
-    public ChaosConfig get(RestPath restPath) {
-        return Optional.ofNullable(paths.get(restPath)).orElseGet(ChaosConfig::new);
-    }
+    private Chaos put(RestPath restPath, Chaos config) {return paths.put(restPath, config);}
 
-    public ChaosConfig set(String path, ChaosConfig config) {return set(RestPath.of(path), config);}
+    public Chaos patch(String path, Chaos config) {return patch(RestPath.of(path), config);}
 
-    private ChaosConfig set(RestPath restPath, ChaosConfig config) {
-        return paths.merge(restPath, config, ChaosConfig::merge);
-    }
+    private Chaos patch(RestPath restPath, Chaos config) {return paths.merge(restPath, config, Chaos::merge);}
+
 
     public static class Serializer implements JsonbSerializer<RestPaths> {
         @Override public void serialize(RestPaths obj, JsonGenerator generator, SerializationContext ctx) {
@@ -60,7 +66,7 @@ public class RestPaths {
                 if (event == KEY_NAME) {
                     var method = RestPath.of(parser.getString());
                     parser.next();
-                    var restPaths = ctx.deserialize(ChaosConfig.class, parser);
+                    var restPaths = ctx.deserialize(Chaos.class, parser);
                     paths.paths.put(method, restPaths);
                 }
             }

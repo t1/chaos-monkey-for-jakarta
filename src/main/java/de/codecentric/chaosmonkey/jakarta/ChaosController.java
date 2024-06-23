@@ -13,80 +13,51 @@ public class ChaosController {
     ChaosConfigs configs;
 
     @GET
-    public Locations getAll() {
+    public Directions getAll() {
         return configs.all();
     }
 
     @DELETE
-    public Locations deleteAllChaos() {
+    public Directions deleteAllChaos() {
         configs.reset();
         return configs.all();
     }
 
-    @GET @Path("{location}")
-    public RestMethods get(@PathParam("location") ChaosLocation location) {
-        return configs.at(location);
+    @GET @Path("{direction}")
+    public RestMethods get(@PathParam("direction") ChaosDirection direction) {
+        return configs.when(direction);
     }
 
-    @GET @Path("{location}/{method}")
+    @GET @Path("{direction}/{method}")
     public RestPaths get(
-            @PathParam("location") ChaosLocation location,
+            @PathParam("direction") ChaosDirection direction,
             @PathParam("method") String method) {
-        return configs.at(location).on(method);
+        return configs.when(direction).with(method);
     }
 
-    @GET @Path("/{location}/{method}/{path:.*}")
-    public ChaosConfig getConfig(
-            @PathParam("location") ChaosLocation location,
+    @GET @Path("/{direction}/{method}/{path:.*}")
+    public Chaos getConfig(
+            @PathParam("direction") ChaosDirection direction,
             @PathParam("method") String method,
             @PathParam("path") String path) {
-        return configs.at(location).on(method).get("/" + path);
+        return configs.when(direction).with(method).at("/" + path);
     }
 
-    @PUT @Path("/{location}/{method}/{path:.*}")
-    public ChaosConfig putConfig(
-            @PathParam("location") ChaosLocation location,
+    @PUT @Path("/{direction}/{method}/{path:.*}")
+    public Chaos putConfig(
+            @PathParam("direction") ChaosDirection direction,
             @PathParam("method") String method,
             @PathParam("path") String path,
-            ChaosConfig config) {
-        return configs.at(location).on(method).set("/" + path, config);
+            Chaos config) {
+        return configs.when(direction).with(method).put("/" + path, config);
     }
 
-    @GET @Path("/{location}/{method}/{path:.*}/failureCount")
-    public int getFailureCount(
-            @PathParam("location") ChaosLocation location,
-            @PathParam("method") String method,
-            @PathParam("path") String path) {
-        return getConfig(location, method, path).getFailureCount();
-    }
-
-    @GET @Path("/{location}/{method}/{path:.*}/failureStatus")
-    public int getFailureStatus(
-            @PathParam("location") ChaosLocation location,
-            @PathParam("method") String method,
-            @PathParam("path") String path) {
-        return getConfig(location, method, path).getStatusCode();
-    }
-
-    @PUT @Path("/{location}/{method}/{path:.*}/failureCount")
-    public ChaosConfig putFailureCount(
-            @PathParam("location") ChaosLocation location,
+    @Path("/{direction}/{method}/{path:.*}")
+    public Chaos patchConfig(
+            @PathParam("direction") ChaosDirection direction,
             @PathParam("method") String method,
             @PathParam("path") String path,
-            int value) {
-        var chaosConfig = getConfig(location, method, path);
-        chaosConfig.setFailureCount(value);
-        return chaosConfig;
-    }
-
-    @PUT @Path("/{location}/{method}/{path:.*}/failureStatus")
-    public ChaosConfig putFailureStatus(
-            @PathParam("location") ChaosLocation location,
-            @PathParam("method") String method,
-            @PathParam("path") String path,
-            int statusCode) {
-        var chaosConfig = getConfig(location, method, path);
-        chaosConfig.setStatusCode(statusCode);
-        return chaosConfig;
+            Chaos config) {
+        return configs.when(direction).with(method).patch("/" + path, config);
     }
 }

@@ -1,0 +1,46 @@
+#!/usr/bin/env java --source 17
+
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpConnectTimeoutException;
+import java.net.http.HttpRequest;
+import java.net.http.HttpTimeoutException;
+import java.time.Duration;
+import java.time.LocalTime;
+
+import static java.net.http.HttpResponse.BodyHandlers.ofString;
+import static java.time.temporal.ChronoUnit.SECONDS;
+
+public class Main {
+    private static final HttpClient HTTP = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(1))
+            .build();
+    private static final HttpRequest REQUEST = HttpRequest.newBuilder()
+            .timeout(Duration.ofSeconds(1))
+            .uri(URI.create("http://localhost:8080/rest/greetings/indirect"))
+            .header("Accept", "application/json")
+            .build();
+
+    @SuppressWarnings({"BusyWait", "InfiniteLoopStatement"})
+    public static void main(String... args) throws IOException, InterruptedException {
+        do {
+            String message;
+            try {
+                var response = HTTP.send(REQUEST, ofString());
+                message = response.statusCode() + " " + response.body();
+            } catch (ConnectException e) {
+                message = "connection refused";
+            } catch (HttpConnectTimeoutException e) {
+                message = "connect timeout";
+            } catch (HttpTimeoutException e) {
+                message = "http timeout";
+            }
+
+            System.out.println(LocalTime.now().truncatedTo(SECONDS) + " " + message);
+
+            Thread.sleep(1000);
+        } while (true);
+    }
+}

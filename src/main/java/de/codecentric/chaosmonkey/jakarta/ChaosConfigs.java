@@ -6,11 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 @Singleton
 @Slf4j
 public class ChaosConfigs {
-    private final Locations locations = new Locations();
+    private final Directions directions = new Directions();
 
-    public Locations all() {return locations;}
+    public Directions all() {return directions;}
 
-    public RestMethods at(ChaosLocation location) {return locations.at(location);}
+    public RestMethods when(ChaosDirection direction) {return directions.at(direction);}
 
-    public void reset() {locations.reset();}
+    public void reset() {directions.reset();}
 }

@@ -8,6 +8,7 @@ import jakarta.json.bind.serializer.JsonbSerializer;
 import jakarta.json.bind.serializer.SerializationContext;
 import jakarta.json.stream.JsonGenerator;
 import jakarta.json.stream.JsonParser;
+import lombok.EqualsAndHashCode;
 
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -17,15 +18,18 @@ import static jakarta.json.stream.JsonParser.Event.KEY_NAME;
 
 @JsonbTypeSerializer(RestMethods.Serializer.class)
 @JsonbTypeDeserializer(RestMethods.Deserializer.class)
+@EqualsAndHashCode
 public class RestMethods {
     private final Map<RestMethod, RestPaths> methods = new ConcurrentHashMap<>();
 
+    @Override public String toString() {return "RestMethods:" + methods;}
+
     public boolean active() {return methods.values().stream().anyMatch(RestPaths::active);}
 
-    public RestPaths on(String method) {return on(RestMethod.of(method));}
+    public RestPaths with(String method) {return with(RestMethod.of(method));}
 
     // there's only a limited number of REST methods, so we can store them all
-    public RestPaths on(RestMethod method) {return methods.computeIfAbsent(method, t -> new RestPaths());}
+    public RestPaths with(RestMethod method) {return methods.computeIfAbsent(method, t -> new RestPaths());}
 
 
     public void clear() {methods.clear();}
