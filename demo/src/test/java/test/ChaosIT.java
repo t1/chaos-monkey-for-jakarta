@@ -41,10 +41,10 @@ class ChaosIT {
 
     @Path("/chaos")
     public interface ChaosApi {
-        @PUT @Path("/{direction}/GET/rest/greetings/direct")
+        @PUT @Path("/{direction}/GET/greetings/direct")
         Chaos put(@PathParam("direction") ChaosDirection direction, Chaos config);
 
-        @PATCH @Path("/{direction}/GET/rest/greetings/direct")
+        @PATCH @Path("/{direction}/GET/greetings/direct")
         Chaos patch(@PathParam("direction") ChaosDirection direction, Chaos config);
 
         @DELETE Directions reset();
@@ -52,7 +52,7 @@ class ChaosIT {
         @GET Directions getAll();
     }
 
-    URI baseUri = URI.create("http://localhost:8080/rest");
+    URI baseUri = URI.create("http://localhost:8080");
     GreetingsApi greetingsApi = rest(GreetingsApi.class);
     ChaosApi chaosApi = rest(ChaosApi.class);
 
@@ -166,7 +166,7 @@ class ChaosIT {
         var all = chaosApi.getAll();
 
         then(all.active()).isTrue();
-        then(all.at(OUTGOING).with(RestMethod.GET).at("/rest/greetings/direct"))
+        then(all.at(OUTGOING).with(RestMethod.GET).at("/greetings/direct"))
                 .isEqualTo(chaos);
         chaosApi.reset();
     }
@@ -181,7 +181,7 @@ class ChaosIT {
         then(updated).isEqualTo(Chaos.builder().failureCount(1).statusCode(NOT_IMPLEMENTED).build());
         var chaos = chaosApi.getAll();
         then(chaos.active()).isTrue();
-        then(chaos.at(OUTGOING).with(RestMethod.GET).at("/rest/greetings/direct"))
+        then(chaos.at(OUTGOING).with(RestMethod.GET).at("/greetings/direct"))
                 .isEqualTo(updated);
         chaosApi.reset();
     }

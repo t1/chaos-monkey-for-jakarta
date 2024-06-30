@@ -19,7 +19,7 @@ public class Main {
             .build();
     private static final HttpRequest REQUEST = HttpRequest.newBuilder()
             .timeout(Duration.ofSeconds(1))
-            .uri(URI.create("http://localhost:8080/rest/greetings/indirect"))
+            .uri(URI.create("http://localhost:8080/greetings/indirect"))
             .header("Accept", "application/json")
             .build();
 
