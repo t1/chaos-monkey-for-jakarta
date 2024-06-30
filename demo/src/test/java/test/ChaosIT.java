@@ -27,7 +27,7 @@ import static de.codecentric.chaosmonkey.jakarta.ChaosDirection.OUTGOING;
 import static jakarta.ws.rs.core.Response.Status.NOT_IMPLEMENTED;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static test.CustomAssertions.then;
+import static org.assertj.core.api.BDDAssertions.then;
 
 class ChaosIT {
     @Path("/greetings")
