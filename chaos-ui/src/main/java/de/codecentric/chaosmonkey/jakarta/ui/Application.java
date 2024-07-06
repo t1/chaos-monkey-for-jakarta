@@ -31,20 +31,22 @@ public class Application {
 
     @GET
     public Renderable index() {
-        return page.title(null).content(
+        var page = this.page.title(null).content(
                 demo(),
                 eventStream());
+        page.body().onkeyup("Enter", "document.getElementById('submit-demo').click();");
+        return page;
     }
 
     private Card demo() {
         return card()
                 .header(
                         p("Demo"),
-                        button().ariaLabel("demo request").icon("paper-plane").hasText(WARNING)
+                        button().id("submit-demo").ariaLabel("demo request").icon("paper-plane").hasText(WARNING)
                                 .attr("hx-get", "/greetings/indirect")
                                 .attr("hx-target", "#demo-output")
                                 .attr("hx-swap", "innerHTML"),
-                        button().ariaLabel("delete output").icon("trash")
+                        button().id("delete-all-messages").ariaLabel("delete all messages").icon("trash")
                                 .attr("hx-delete", CHAOS_UI_ROOT + "/messages")
                                 .attr("hx-target", "#demo-output")
                                 .attr("hx-swap", "innerHTML"))
