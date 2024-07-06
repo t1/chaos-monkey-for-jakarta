@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static de.codecentric.chaosmonkey.jakarta.ui.Application.CHAOS_UI_ROOT;
 import static de.codecentric.chaosmonkey.jakarta.ui.StaticFilesLoader.classLoader;
 import static jakarta.ws.rs.core.MediaType.TEXT_PLAIN;
 import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
@@ -28,7 +29,7 @@ import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
  * (e.g. the version number), modified-since (from the pom.properties comment), and cache control headers.
  */
 @Slf4j
-@Path("/webjars")
+@Path(CHAOS_UI_ROOT + "/webjars")
 @ApplicationScoped
 public class WebJarsResource {
     private class NotFoundLoader extends StaticFilesLoader {

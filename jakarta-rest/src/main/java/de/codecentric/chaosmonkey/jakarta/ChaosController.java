@@ -7,6 +7,9 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 
+import static de.codecentric.chaosmonkey.jakarta.ChaosEvent.Type.ADD;
+import static de.codecentric.chaosmonkey.jakarta.ChaosEvent.Type.UPDATE;
+
 @Path("/chaos")
 public class ChaosController {
     @Inject
@@ -49,6 +52,7 @@ public class ChaosController {
             @PathParam("method") String method,
             @PathParam("path") String path,
             Chaos config) {
+        ChaosEvents.send(ADD, direction + " " + method + " " + config);
         return configs.when(direction).with(method).put("/" + path, config);
     }
 
@@ -58,6 +62,7 @@ public class ChaosController {
             @PathParam("method") String method,
             @PathParam("path") String path,
             Chaos config) {
+        ChaosEvents.send(UPDATE, direction + " " + method + " " + config);
         return configs.when(direction).with(method).patch("/" + path, config);
     }
 }

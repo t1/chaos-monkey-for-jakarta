@@ -15,6 +15,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>de.codecentric.chaos.jakarta</groupId>
+            <artifactId>chaos-monkey-for-jakarta-rest</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.github.t1</groupId>
             <artifactId>bulma-java</artifactId>
         </dependency>

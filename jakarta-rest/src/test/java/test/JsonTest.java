@@ -217,7 +217,7 @@ class JsonTest {
 
     @Test void shouldSerializeOnlyInactiveDirections() {
         var directions = new Directions();
-        directions.at(INCOMING).with(DELETE).at("/foo/bar").setDelay(1000L);
+        directions.at(INCOMING).with(DELETE).at("/foo/bar").setDelay(1000);
 
         var json = JSONB.toJson(directions);
 

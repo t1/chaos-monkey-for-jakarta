@@ -28,7 +28,7 @@ public class WebSocketConnections {
             wsSession.getAsyncRemote()
                     .sendObject(renderable.render(), result -> {
                         if (result.isOK()) {
-                            log.debug("successfully broadcast to {}: {}", wsSession.getId(), renderable);
+                            log.trace("successfully broadcast to {}: {}", wsSession.getId(), renderable);
                         } else {
                             log.error("failed to broadcast to {}: {}", wsSession.getId(), renderable, result.getException());
                         }
@@ -52,7 +52,7 @@ public class WebSocketConnections {
     }
 
     public void broadcast(Renderable renderable) {
-        log.debug("broadcast: {}", renderable);
+        log.trace("broadcast: {}", renderable);
         connections.values().forEach(connection -> connection.send(renderable));
     }
 

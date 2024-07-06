@@ -1,4 +1,4 @@
-package de.codecentric.chaosmonkey.jakarta.ui;
+package de.codecentric.chaosmonkey.jakarta;
 
 import jakarta.annotation.Priority;
 import jakarta.inject.Inject;
@@ -9,24 +9,26 @@ import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.ext.Provider;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.Instant;
-
-import static de.codecentric.chaosmonkey.jakarta.ui.Messages.Level.INFO;
+import static de.codecentric.chaosmonkey.jakarta.ChaosDirection.INCOMING;
 
 @Provider
 @Priority(Integer.MAX_VALUE)
 @Slf4j
-public class ChaosUiContainerFilter implements ContainerRequestFilter, ContainerResponseFilter {
-    @Inject Messages messages;
+public class IncomingChaosFilter implements ContainerRequestFilter, ContainerResponseFilter {
+    @Inject
+    ChaosConfigs configs;
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
         var method = requestContext.getMethod();
         var uri = requestContext.getUriInfo().getRequestUri();
-        messages.add(Instant.now(), INFO, method + " " + uri);
+        log.debug("incoming {} {}", method, uri);
+        configs.when(INCOMING).with(method).at(uri.getPath())
+                .apply(requestContext::abortWith);
     }
 
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
+        log.debug("return incoming {} {}", responseContext.getStatus(), responseContext.getStatusInfo().getReasonPhrase());
     }
 }

@@ -9,6 +9,7 @@ import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.Accessors;
 
 import java.time.Instant;
 import java.time.LocalTime;
@@ -22,6 +23,7 @@ import static com.github.t1.bulmajava.basic.Basic.div;
 import static com.github.t1.bulmajava.basic.Basic.p;
 import static com.github.t1.bulmajava.basic.Color.DANGER;
 import static com.github.t1.bulmajava.basic.Color.PRIMARY;
+import static com.github.t1.bulmajava.basic.Color.WARNING;
 import static com.github.t1.bulmajava.helpers.ColorsHelper.dark;
 import static java.time.temporal.ChronoField.HOUR_OF_DAY;
 import static java.time.temporal.ChronoField.MILLI_OF_SECOND;
@@ -43,9 +45,9 @@ public class Messages {
         connections.onOpen(THIS, sessionId -> connections.send(sessionId, renderable()));
     }
 
-    public void add(Instant now, Level INFO, String message) {
+    public void add(Message message) {
         while (messages.size() > MAX) messages.remove();
-        messages.add(new Message(now, INFO, message));
+        messages.add(message);
         connections.broadcast(renderable());
     }
 
@@ -62,7 +64,25 @@ public class Messages {
         connections.broadcast(renderable());
     }
 
-    private record Message(Instant timestamp, Level level, String text) {
+    public record Message(Instant timestamp, Level level, String text) {
+        public Message(Level level, String text) {this(Instant.now(), level, text);}
+
+        @RequiredArgsConstructor @Getter @Accessors(fluent = true)
+        public enum Level {
+            DEBUG(dark(PRIMARY)), INFO(Color.INFO), WARN(WARNING), ERROR(DANGER);
+            private final Modifier color;
+        }
+
+        public Renderable toRenderable() {
+            return p(formatted(timestamp) + " " + text())
+                    .hasText(level.color())
+                    .classes("is-family-monospace");
+        }
+
+        private static String formatted(Instant timestamp) {
+            return LocalTime.ofInstant(timestamp, ZoneId.systemDefault()).format(LOG_TIME);
+        }
+
         // This is like the ISO_LOCAL_TIME, but with fixed-width millis
         private static final DateTimeFormatter LOG_TIME = new DateTimeFormatterBuilder()
                 .appendValue(HOUR_OF_DAY, 2)
@@ -74,16 +94,5 @@ public class Messages {
                 .optionalStart()
                 .appendFraction(MILLI_OF_SECOND, 3, 3, true)
                 .toFormatter();
-
-        public Renderable toRenderable() {
-            return p(LocalTime.ofInstant(timestamp, ZoneId.systemDefault()).format(LOG_TIME) + " " + text)
-                    .hasText(level.color)
-                    .classes("is-family-monospace");
-        }
-    }
-
-    @RequiredArgsConstructor @Getter
-    public enum Level {DEBUG(dark(PRIMARY)), INFO(Color.INFO), ERROR(DANGER);
-        private final Modifier color;
     }
 }

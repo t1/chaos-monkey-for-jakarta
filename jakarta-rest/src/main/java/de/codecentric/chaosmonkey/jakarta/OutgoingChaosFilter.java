@@ -14,7 +14,7 @@ import static de.codecentric.chaosmonkey.jakarta.ChaosDirection.OUTGOING;
 @Provider
 @Priority(Integer.MAX_VALUE)
 @Slf4j
-public class ChaosClientFilter implements ClientRequestFilter, ClientResponseFilter {
+public class OutgoingChaosFilter implements ClientRequestFilter, ClientResponseFilter {
     @Inject
     ChaosConfigs configs;
 
@@ -22,13 +22,13 @@ public class ChaosClientFilter implements ClientRequestFilter, ClientResponseFil
     public void filter(ClientRequestContext requestContext) {
         var method = requestContext.getMethod();
         var uri = requestContext.getUri();
-        log.warn("outgoing {} {}", method, uri);
+        log.debug("outgoing {} {}", method, uri);
         configs.when(OUTGOING).with(method).at(uri.getPath())
                 .apply(requestContext::abortWith);
     }
 
     @Override
     public void filter(ClientRequestContext requestContext, ClientResponseContext responseContext) {
-        log.warn("return outgoing {} {}", responseContext.getStatus(), responseContext.getStatusInfo().getReasonPhrase());
+        log.debug("return outgoing {} {}", responseContext.getStatus(), responseContext.getStatusInfo().getReasonPhrase());
     }
 }

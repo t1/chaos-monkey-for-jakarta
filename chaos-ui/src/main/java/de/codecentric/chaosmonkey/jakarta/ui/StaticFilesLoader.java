@@ -20,11 +20,11 @@ class StaticFilesLoader {
     @SuppressWarnings("IOResourceOpenedButNotSafelyClosed")
     Response response(String filePath) {
         String path = prefix + filePath;
-        log.debug("look for static file: {}: {}: {}", name, prefix, filePath);
+        log.trace("look for static file: {}: {}: {}", name, prefix, filePath);
         InputStream stream = classLoader().getResourceAsStream(path);
         if (stream == null)
             return null;
-        log.debug("found {} in {}", filePath, name);
+        log.trace("found {} in {}", filePath, name);
         return Response.ok(stream).type(type(fileSuffix(filePath))).build();
     }
 
