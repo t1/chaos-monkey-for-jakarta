@@ -1,9 +1,9 @@
 package de.codecentric.chaosmonkey.jakarta.ui;
 
+import com.github.t1.bulmajava.basic.Anchor;
 import com.github.t1.bulmajava.basic.Element;
 import com.github.t1.bulmajava.basic.Renderable;
 import com.github.t1.bulmajava.components.Card;
-import com.github.t1.bulmajava.elements.Button;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -12,6 +12,7 @@ import jakarta.ws.rs.Produces;
 
 import java.util.Map;
 
+import static com.github.t1.bulmajava.basic.Anchor.a;
 import static com.github.t1.bulmajava.basic.Basic.i;
 import static com.github.t1.bulmajava.basic.Basic.p;
 import static com.github.t1.bulmajava.basic.Color.WARNING;
@@ -40,26 +41,21 @@ public class Application {
 
     private Card demo() {
         return card()
-                .header(
-                        p("Demo"),
-                        button().id("submit-demo").ariaLabel("demo request").icon("paper-plane").hasText(WARNING)
-                                .attr("hx-get", "/greetings/indirect")
-                                .attr("hx-target", "#demo-output")
-                                .attr("hx-swap", "innerHTML"),
-                        button().id("delete-all-messages").ariaLabel("delete all messages").icon("trash")
-                                .attr("hx-delete", CHAOS_UI_ROOT + "/messages")
-                                .attr("hx-target", "#demo-output")
-                                .attr("hx-swap", "innerHTML"))
+                .header(p("Demo"))
                 .content(p(), // somehow, this is necessary for correct spacing (WTF?)
                         emptyMessages().id("demo-output"))
                 .footer(
-                        chaosButton("Add 1 Failure", Map.of("statusCode", "503", "failureCount", "1")),
-                        chaosButton("Add 4 Failures", Map.of("statusCode", "501", "failureCount", "4")),
-                        chaosButton("Add Timeout", Map.of("delay", "5000", "failureCount", "1")));
+                        chaosAction("Add 1 Failure", Map.of("statusCode", "503", "failureCount", "1")),
+                        chaosAction("Add 4 Failures", Map.of("statusCode", "501", "failureCount", "4")),
+                        chaosAction("Add Timeout", Map.of("delay", "5000", "failureCount", "1")),
+                        a("Send").id("submit-demo").hasText(WARNING)
+                                .attr("hx-get", "/greetings/indirect")
+                                .attr("hx-target", "#demo-output")
+                                .attr("hx-swap", "innerHTML"));
     }
 
-    private static Button chaosButton(String label, Map<String, String> config) {
-        return button(label)
+    private static Anchor chaosAction(String label, Map<String, String> config) {
+        return a(label)
                 .attr("hx-put", "/chaos/INCOMING/GET/greetings/direct")
                 .attr("hx-swap", "none")
                 .attr("hx-include", "this")
@@ -78,7 +74,11 @@ public class Application {
 
     private static Card eventStream() {
         return card()
-                .header(p("Event Stream"))
+                .header(p("Event Stream"),
+                        button().id("delete-all-messages").ariaLabel("delete all messages").icon("trash")
+                                .attr("hx-delete", CHAOS_UI_ROOT + "/messages")
+                                .attr("hx-target", "#demo-output")
+                                .attr("hx-swap", "innerHTML"))
                 .content(p(), // somehow, this is necessary for correct spacing (WTF?)
                         p().id("event-stream"));
     }

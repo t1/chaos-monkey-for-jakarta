@@ -18,12 +18,12 @@
         <dependency>
             <groupId>de.codecentric.chaos.jakarta</groupId>
             <artifactId>chaos-monkey-for-jakarta-rest</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>de.codecentric.chaos.jakarta</groupId>
             <artifactId>chaos-monkey-for-jakarta-chaos-ui</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <!--
         <dependency>
@@ -60,6 +60,7 @@
                 <version>5.0.0.Final</version>
                 <configuration>
                     <discover-provisioning-info>
+                        <!--<version>33.0.0.Beta1</version>-->
                         <suggest>true</suggest>
                     </discover-provisioning-info>
                     <debug>true</debug>
