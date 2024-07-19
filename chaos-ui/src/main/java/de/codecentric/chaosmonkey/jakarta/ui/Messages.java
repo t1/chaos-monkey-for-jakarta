@@ -55,6 +55,7 @@ public class Messages {
         return div().id("event-stream")
                 .attr("hx-swap", "innerHTML")
                 .content(messages.stream()
+                        .skip(Math.max(0, messages.size() - 20))
                         .limit(20)
                         .map(Message::toRenderable));
     }
