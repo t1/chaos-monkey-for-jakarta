@@ -53,7 +53,7 @@ public class ChaosController {
             @PathParam("method") String method,
             @PathParam("path") String path,
             Chaos config) {
-        ChaosEvents.send(ADD, direction + " " + method + " " + config);
+        ChaosEvents.send(ADD, direction + " " + method + " " + path + " " + config);
         return configs.when(direction).with(method).put("/" + path, config);
     }
 
@@ -63,7 +63,7 @@ public class ChaosController {
             @PathParam("method") String method,
             @PathParam("path") String path,
             Chaos config) {
-        ChaosEvents.send(UPDATE, direction + " " + method + " " + config);
+        ChaosEvents.send(UPDATE, direction + " " + method + " " + path + " " + config);
         return configs.when(direction).with(method).patch("/" + path, config);
     }
 }
