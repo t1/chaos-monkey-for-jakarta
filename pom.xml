@@ -31,6 +31,11 @@
                 <version>1.0a10</version>
             </dependency>
             <dependency>
+                <groupId>com.github.t1</groupId>
+                <artifactId>jee-webjars-locator</artifactId>
+                <version>1.0.1</version>
+            </dependency>
+            <dependency>
                 <groupId>org.webjars.npm</groupId>
                 <artifactId>bulma</artifactId>
                 <version>1.0.3</version>

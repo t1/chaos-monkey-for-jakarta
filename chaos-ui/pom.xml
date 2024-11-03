@@ -25,6 +25,10 @@
             <artifactId>bulma-java</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.github.t1</groupId>
+            <artifactId>jee-webjars-locator</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.webjars.npm</groupId>
             <artifactId>bulma</artifactId>
         </dependency>

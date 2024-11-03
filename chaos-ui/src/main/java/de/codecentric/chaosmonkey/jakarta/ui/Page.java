@@ -16,7 +16,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import static com.github.t1.bulmajava.basic.Html.html;
 import static com.github.t1.bulmajava.layout.Section.section;
-import static de.codecentric.chaosmonkey.jakarta.ui.Application.CHAOS_UI_ROOT;
 
 @RequestScoped
 @RequiredArgsConstructor(onConstructor_ = @Inject) @NoArgsConstructor(force = true)
@@ -31,13 +30,13 @@ public class Page implements Renderable {
 
     public Page title(String title) {
         this.html = html(title)
-                .stylesheet(CHAOS_UI_ROOT + "/webjars/fortawesome__fontawesome-free/css/all.css")
-                .stylesheet(CHAOS_UI_ROOT + "/webjars/bulma/css/bulma.css")
-                .script(CHAOS_UI_ROOT + "/webjars/htmx.org/dist/htmx.js")
-                .script(CHAOS_UI_ROOT + "/webjars/htmx-ext-json-enc/json-enc.js")
-                .script(CHAOS_UI_ROOT + "/webjars/htmx-ext-ws/ws.js")
-                .script(CHAOS_UI_ROOT + "/webjars/htmx-ext-debug/debug.js")
-                .javaScriptBody(CHAOS_UI_ROOT + "/static/chaos-ui.js")
+                .stylesheet("/webjars/fortawesome__fontawesome-free/css/all.css")
+                .stylesheet("/webjars/bulma/css/bulma.css")
+                .script("/webjars/htmx.org/dist/htmx.js")
+                .script("/webjars/htmx-ext-json-enc/json-enc.js")
+                .script("/webjars/htmx-ext-ws/ws.js")
+                .script("/webjars/htmx-ext-debug/debug.js")
+                .javaScriptBody("/static/chaos-ui.js")
                 .content(this.body = Body.body().content(
                         this.section = section().classes("mt-6")
                                 .attr("hx-ext", "ws,json-enc" + (debug ? ",debug" : ""))
