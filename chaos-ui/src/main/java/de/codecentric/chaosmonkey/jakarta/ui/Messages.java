@@ -1,9 +1,10 @@
 package de.codecentric.chaosmonkey.jakarta.ui;
 
+import com.github.t1.bulmajava.basic.BulmaElement.TextModifier;
 import com.github.t1.bulmajava.basic.Color;
-import com.github.t1.bulmajava.basic.Element;
-import com.github.t1.bulmajava.basic.Modifier;
-import com.github.t1.bulmajava.basic.Renderable;
+import com.github.t1.bulmajava.basic.IsModifier;
+import com.github.t1.htmljava.Element;
+import com.github.t1.htmljava.Renderable;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
@@ -19,12 +20,12 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
-import static com.github.t1.bulmajava.basic.Basic.div;
-import static com.github.t1.bulmajava.basic.Basic.p;
 import static com.github.t1.bulmajava.basic.Color.DANGER;
 import static com.github.t1.bulmajava.basic.Color.PRIMARY;
 import static com.github.t1.bulmajava.basic.Color.WARNING;
 import static com.github.t1.bulmajava.helpers.ColorsHelper.dark;
+import static com.github.t1.htmljava.HtmlBasics.div;
+import static com.github.t1.htmljava.HtmlBasics.p;
 import static java.time.temporal.ChronoField.HOUR_OF_DAY;
 import static java.time.temporal.ChronoField.MILLI_OF_SECOND;
 import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
@@ -71,12 +72,12 @@ public class Messages {
         @RequiredArgsConstructor @Getter @Accessors(fluent = true)
         public enum Level {
             DEBUG(dark(PRIMARY)), INFO(Color.INFO), WARN(WARNING), ERROR(DANGER);
-            private final Modifier color;
+            private final IsModifier color;
         }
 
         public Renderable toRenderable() {
             return p(formatted(timestamp) + " " + text())
-                    .hasText(level.color())
+                    .has(TextModifier.text(level.color()))
                     .classes("is-family-monospace");
         }
 
