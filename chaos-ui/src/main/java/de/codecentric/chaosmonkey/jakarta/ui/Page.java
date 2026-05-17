@@ -1,11 +1,11 @@
 package de.codecentric.chaosmonkey.jakarta.ui;
 
-import com.github.t1.bulmajava.basic.Body;
-import com.github.t1.bulmajava.basic.Html;
-import com.github.t1.bulmajava.basic.Renderable;
-import com.github.t1.bulmajava.basic.Renderer;
 import com.github.t1.bulmajava.elements.Title;
 import com.github.t1.bulmajava.layout.Section;
+import com.github.t1.htmljava.Body;
+import com.github.t1.htmljava.Html;
+import com.github.t1.htmljava.Renderable;
+import com.github.t1.htmljava.Renderer;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpSession;
@@ -14,8 +14,8 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import static com.github.t1.bulmajava.basic.Html.html;
 import static com.github.t1.bulmajava.layout.Section.section;
+import static com.github.t1.htmljava.Html.html;
 
 @RequestScoped
 @RequiredArgsConstructor(onConstructor_ = @Inject) @NoArgsConstructor(force = true)

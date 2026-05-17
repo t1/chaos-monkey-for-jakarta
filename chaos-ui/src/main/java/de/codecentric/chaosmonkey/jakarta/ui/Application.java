@@ -1,9 +1,9 @@
 package de.codecentric.chaosmonkey.jakarta.ui;
 
-import com.github.t1.bulmajava.basic.Anchor;
-import com.github.t1.bulmajava.basic.Element;
-import com.github.t1.bulmajava.basic.Renderable;
 import com.github.t1.bulmajava.components.Card;
+import com.github.t1.htmljava.Anchor;
+import com.github.t1.htmljava.Element;
+import com.github.t1.htmljava.Renderable;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -12,14 +12,15 @@ import jakarta.ws.rs.Produces;
 
 import java.util.Map;
 
-import static com.github.t1.bulmajava.basic.Anchor.a;
-import static com.github.t1.bulmajava.basic.Basic.i;
-import static com.github.t1.bulmajava.basic.Basic.p;
+import static com.github.t1.bulmajava.basic.BulmaElement.TextModifier.text;
 import static com.github.t1.bulmajava.basic.Color.WARNING;
 import static com.github.t1.bulmajava.components.Card.card;
 import static com.github.t1.bulmajava.elements.Button.button;
 import static com.github.t1.bulmajava.form.Input.input;
 import static com.github.t1.bulmajava.form.InputType.HIDDEN;
+import static com.github.t1.htmljava.Anchor.a;
+import static com.github.t1.htmljava.HtmlBasics.i;
+import static com.github.t1.htmljava.HtmlBasics.p;
 import static jakarta.ws.rs.core.MediaType.TEXT_HTML;
 
 @Path(Application.CHAOS_UI_ROOT)
@@ -28,6 +29,7 @@ public class Application {
     static final String CHAOS_UI_ROOT = "/chaos-ui";
 
     @Inject Page page;
+
     @Inject Messages messages;
 
     @GET
@@ -48,7 +50,7 @@ public class Application {
                         chaosAction("Add 1 Failure", Map.of("statusCode", "503", "failureCount", "1")),
                         chaosAction("Add 4 Failures", Map.of("statusCode", "501", "failureCount", "4")),
                         chaosAction("Add Timeout", Map.of("delay", "5000", "failureCount", "1")),
-                        a("Send").id("submit-demo").hasText(WARNING)
+                        a("Send").id("submit-demo").has(text(WARNING))
                                 .attr("hx-get", "/greetings/indirect")
                                 .attr("hx-target", "#demo-output")
                                 .attr("hx-swap", "innerHTML"));
@@ -59,7 +61,7 @@ public class Application {
                 .attr("hx-put", "/chaos/INCOMING/GET/greetings/direct")
                 .attr("hx-swap", "none")
                 .attr("hx-include", "this")
-                .content(config.entrySet().stream().map(e -> input(HIDDEN).name(e.getKey()).value(e.getValue())));
+                .content(config.entrySet().stream().map(e -> input(HIDDEN).fieldName(e.getKey()).value(e.getValue())));
     }
 
     @DELETE @Path("/messages")

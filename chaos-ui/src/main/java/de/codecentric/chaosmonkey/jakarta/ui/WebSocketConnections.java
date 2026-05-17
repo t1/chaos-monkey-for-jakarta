@@ -1,6 +1,6 @@
 package de.codecentric.chaosmonkey.jakarta.ui;
 
-import com.github.t1.bulmajava.basic.Renderable;
+import com.github.t1.htmljava.Renderable;
 import jakarta.ejb.Singleton;
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnError;
