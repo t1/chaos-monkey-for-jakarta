@@ -60,7 +60,9 @@ class ChaosIT {
         return RestClientBuilder.newBuilder()
                 .baseUri(baseUri)
                 .property("microprofile.rest.client.disable.default.mapper", true)
-                .readTimeout(500, MILLISECONDS)
+                // incoming chaos needs real HTTP roundtrips; allow for @Retry default jitter (200ms) × maxRetries (3),
+                // but keep below the 2000ms delay used by the delay-chaos tests
+                .readTimeout(1500, MILLISECONDS)
                 .build(api);
     }
 
