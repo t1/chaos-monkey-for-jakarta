@@ -14,7 +14,7 @@ public class Greetings {
     @Path("/greetings")
     public interface Api {
         @GET @Path("/direct")
-        @Retry
+        @Retry(jitter = 0)
         Greeting greeting();
     }
 
